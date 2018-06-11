@@ -21,6 +21,7 @@ from datasets.tools.transforms import Normalize, ToTensor, DeNormalize
 from methods.tools.module_utilizer import ModuleUtilizer
 from models.pose_model_manager import PoseModelManager
 from utils.helpers.image_helper import ImageHelper
+from utils.helpers.file_helper import FileHelper
 from utils.tools.logger import Logger as Log
 from vis.visualizer.pose_visualizer import PoseVisualizer
 
@@ -165,7 +166,7 @@ class ConvPoseMachineTest(object):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
 
-            for filename in self.__list_dir(test_dir):
+            for filename in FileHelper.list_dir(test_dir):
                 image_path = os.path.join(test_dir, filename)
                 save_path = os.path.join(base_dir, filename)
                 if not os.path.exists(os.path.dirname(save_path)):
@@ -189,14 +190,3 @@ class ConvPoseMachineTest(object):
             Log.error('Dataset: {} is not valid.'.format(self.configer.get('dataset')))
             exit(1)
 
-    def __list_dir(self, dir_name):
-        filename_list = list()
-        for item in os.listdir(dir_name):
-            if os.path.isdir(os.path.join(dir_name, item)):
-                for filename in os.listdir(os.path.join(dir_name, item)):
-                    filename_list.append('{}/{}'.format(item, filename))
-
-            else:
-                filename_list.append(item)
-
-        return filename_list

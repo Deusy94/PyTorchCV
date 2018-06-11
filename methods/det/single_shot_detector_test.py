@@ -23,6 +23,7 @@ from datasets.tools.transforms import Normalize, ToTensor, DeNormalize
 from methods.tools.module_utilizer import ModuleUtilizer
 from models.det_model_manager import DetModelManager
 from utils.helpers.image_helper import ImageHelper
+from utils.helpers.file_helper import FileHelper
 from utils.layers.det.priorbox_layer import PriorBoxLayer
 from utils.tools.logger import Logger as Log
 from vis.visualizer.det_visualizer import DetVisualizer
@@ -244,7 +245,7 @@ class SingleShotDetectorTest(object):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
 
-            for filename in self.__list_dir(test_dir):
+            for filename in FileHelper.list_dir(test_dir):
                 image_path = os.path.join(test_dir, filename)
                 save_path = os.path.join(base_dir, filename)
                 if not os.path.exists(os.path.dirname(save_path)):
@@ -291,14 +292,3 @@ class SingleShotDetectorTest(object):
                 # self.det_visualizer.vis_bboxes(paf_avg, image_rgb.astype(np.uint8),  name='314{}_{}'.format(i,j))
                 cv2.imwrite(os.path.join(base_dir, '{}_{}_result.jpg'.format(i, j)), img_canvas)
 
-    def __list_dir(self, dir_name):
-        filename_list = list()
-        for item in os.listdir(dir_name):
-            if os.path.isdir(os.path.join(dir_name, item)):
-                for filename in os.listdir(os.path.join(dir_name, item)):
-                    filename_list.append('{}/{}'.format(item, filename))
-
-            else:
-                filename_list.append(item)
-
-        return filename_list

@@ -4,7 +4,7 @@
 # COCO det data generator.
 
 
-class COCODetGenerator(object):
+class CocoDetGenerator(object):
 
     def __init__(self):
         pass

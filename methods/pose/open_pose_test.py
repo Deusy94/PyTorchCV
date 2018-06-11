@@ -24,6 +24,7 @@ from datasets.tools.transforms import Normalize, ToTensor, DeNormalize
 from methods.tools.module_utilizer import ModuleUtilizer
 from models.pose_model_manager import PoseModelManager
 from utils.helpers.image_helper import ImageHelper
+from utils.helpers.file_helper import FileHelper
 from utils.tools.logger import Logger as Log
 from vis.parser.pose_parser import PoseParser
 from vis.visualizer.pose_visualizer import PoseVisualizer
@@ -321,7 +322,7 @@ class OpenPoseTest(object):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
 
-            for filename in self.__list_dir(test_dir):
+            for filename in FileHelper.list_dir(test_dir):
                 image_path = os.path.join(test_dir, filename)
                 json_path = os.path.join(base_dir, 'json', '{}.json'.format('.'.join(filename.split('.')[:-1])))
                 raw_path = os.path.join(base_dir, 'raw', filename)
@@ -377,14 +378,3 @@ class OpenPoseTest(object):
                 cv2.imshow('main', image_canvas)
                 cv2.waitKey()
 
-    def __list_dir(self, dir_name):
-        filename_list = list()
-        for item in os.listdir(dir_name):
-            if os.path.isdir(os.path.join(dir_name, item)):
-                for filename in os.listdir(os.path.join(dir_name, item)):
-                    filename_list.append('{}/{}'.format(item, filename))
-
-            else:
-                filename_list.append(item)
-
-        return filename_list
