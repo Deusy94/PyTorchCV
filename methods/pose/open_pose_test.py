@@ -359,13 +359,18 @@ class OpenPoseTest(object):
                                       std=self.configer.get('trans_params', 'std'))(inputs[j])
                 ori_img = ori_img.numpy().transpose(1, 2, 0).astype(np.uint8)
                 image_bgr = cv2.cvtColor(ori_img, cv2.COLOR_RGB2BGR)
+                mask_canvas = maskmap[j].repeat(3, 1, 1).numpy().transpose(1, 2, 0)
+                mask_canvas = (mask_canvas * 255).astype(np.uint8)
+                mask_canvas = cv2.resize(mask_canvas, (0, 0), fx=self.configer.get('network', 'stride'),
+                                         fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
+
+                image_bgr = cv2.addWeighted(image_bgr, 0.6, mask_canvas, 0.4, 0)
                 heatmap_avg = heatmap[j].numpy().transpose(1, 2, 0)
                 heatmap_avg = cv2.resize(heatmap_avg, (0, 0), fx=self.configer.get('network', 'stride'),
                                      fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
                 paf_avg = vecmap[j].numpy().transpose(1, 2, 0)
                 paf_avg = cv2.resize(paf_avg, (0, 0), fx=self.configer.get('network', 'stride'),
                                      fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
-                # self.pose_visualizer.vis_paf(paf_avg, image_rgb.astype(np.uint8),  name='314{}_{}'.format(i,j))
                 self.pose_visualizer.vis_peaks(heatmap_avg, image_bgr)
                 self.pose_visualizer.vis_paf(paf_avg, image_bgr)
                 all_peaks = self.__extract_heatmap_info(heatmap_avg)

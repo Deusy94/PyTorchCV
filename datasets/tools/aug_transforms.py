@@ -15,6 +15,7 @@ import matplotlib
 import numpy as np
 from PIL import Image, ImageFilter, ImageOps
 
+from utils.helpers.image_helper import ImageHelper
 from utils.tools.logger import Logger as Log
 
 
@@ -275,7 +276,7 @@ class Resize(object):
         if label is not None:
             label = label.resize(self.size, Image.NEAREST)
         if mask is not None:
-            mask = mask.resize(self.size, Image.NEAREST)
+            mask = mask.resize(self.size, Image.CUBIC)
 
         return img, label, mask, kpts, bboxes
 
@@ -361,7 +362,7 @@ class RandomResize(object):
         if label is not None:
             label = label.resize(converted_size, Image.NEAREST)
         if mask is not None:
-            mask = mask.resize(converted_size, Image.NEAREST)
+            mask = mask.resize(converted_size, Image.CUBIC)
 
         return img, label, mask, kpts, bboxes
 
@@ -481,7 +482,7 @@ class RandomCrop(object):
 
     def get_center(self, img_size, bboxes):
         max_center = [img_size[0] / 2, img_size[1] / 2]
-        max_index = 0
+
         if self.method == 'center':
             return max_center
 
@@ -491,6 +492,7 @@ class RandomCrop(object):
             return [x, y]
 
         elif self.method == 'focus':
+            max_index = 0
             bboxes = np.array(bboxes)
             border = bboxes[:, 2:] - bboxes[:, 0:2]
             for i in range(len(border)):
@@ -498,11 +500,11 @@ class RandomCrop(object):
                     max_index = i
                     max_center = [(bboxes[i][0] + bboxes[i][2]) / 2, (bboxes[i][1] + bboxes[i][3]) / 2]
 
-            jitter = random.randint(-40, 40)
+            jitter = random.randint(-20, 20)
             max_center[0] += jitter
             max_center[1] += jitter
 
-            return max_center
+            return max_center, max_index
 
         elif self.method == 'grid':
             grid_x = random.randint(0, self.grid[0] - 1)
@@ -533,13 +535,12 @@ class RandomCrop(object):
         assert label is None or isinstance(label, Image.Image)
         assert mask is None or isinstance(mask, Image.Image)
 
-        width, height = img.size
-
-        if random.randint(1, 100) > 100 * self.ratio or width < self.size[0] or height < self.size[1]:
+        if random.randint(1, 100) > 100 * self.ratio:
             return img, label, mask, kpts, bboxes
 
-        center = self.get_center(img.size, bboxes)
+        center, index = self.get_center(img.size, bboxes)
 
+        # img = ImageHelper.draw_box(img, bboxes[index])
         offset_left = int(center[0] - self.size[0] / 2)
         offset_up = int(center[1] - self.size[1] / 2)
 
@@ -572,20 +573,25 @@ class RandomCrop(object):
                 bboxes[i][1] -= offset_up
                 bboxes[i][2] -= offset_left
                 bboxes[i][3] -= offset_up
-                bboxes[i][0] = min(max(0, bboxes[i][0]), self.size[0])
-                bboxes[i][1] = min(max(0, bboxes[i][1]), self.size[1])
-                bboxes[i][2] = min(max(0, bboxes[i][2]), self.size[0])
-                bboxes[i][3] = min(max(0, bboxes[i][3]), self.size[1])
+                bboxes[i][0] = min(max(0, bboxes[i][0]), self.size[0]-1)
+                bboxes[i][1] = min(max(0, bboxes[i][1]), self.size[1]-1)
+                bboxes[i][2] = min(max(0, bboxes[i][2]), self.size[0]-1)
+                bboxes[i][3] = min(max(0, bboxes[i][3]), self.size[1]-1)
 
-        img = ImageOps.expand(img, border=(-offset_left, -offset_up, 0, 0), fill=(128, 128, 128))
+        img = ImageOps.expand(img,
+                              border=(-offset_left, -offset_up, self.size[0] + offset_left, self.size[1] + offset_up),
+                              fill=(128, 128, 128))
         img = img.crop((0, 0, self.size[0], self.size[1]))
 
         if mask is not None:
-            mask = ImageOps.expand(mask, border=(-offset_left, -offset_up, 0, 0), fill=1)
+            mask = ImageOps.expand(mask,
+                                   border=(-offset_left, -offset_up,
+                                           self.size[0] + offset_left, self.size[1] + offset_up), fill=1)
             mask = mask.crop((0, 0, self.size[0], self.size[1]))
 
         if label is not None:
-            label = ImageOps.expand(label, border=(-offset_left, -offset_up, 0, 0), fill=255)
+            label = ImageOps.expand(label, border=(-offset_left, -offset_up,
+                                                   self.size[0] + offset_left, self.size[1] + offset_up), fill=255)
             label = label.crop((0, 0, self.size[0], self.size[1]))
 
         return img, label, mask, kpts, bboxes

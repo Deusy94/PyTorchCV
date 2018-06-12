@@ -49,7 +49,7 @@ class CPDataLoader(data.Dataset):
 
         width, height = maskmap.size
         maskmap = ImageHelper.resize(maskmap, (width // self.configer.get('network', 'stride'),
-                                               height // self.configer.get('network', 'stride')), Image.NEAREST)
+                                               height // self.configer.get('network', 'stride')), Image.CUBIC)
 
         maskmap = np.expand_dims(np.array(maskmap, dtype=np.float32), axis=2)
 
