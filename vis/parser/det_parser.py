@@ -77,22 +77,23 @@ class DetParser(object):
 
                 class_name = '{}_{}'.format(class_name, object['score'])
 
+            color_num = len(self.configer.get('details', 'color_list'))
             cv2.rectangle(image_canvas,
                           (int(object['bbox'][0]), int(object['bbox'][1])),
                           (int(object['bbox'][2]), int(object['bbox'][3])),
-                          color=self.configer.get('details', 'color_list')[object['label']], thickness=3)
+                          color=self.configer.get('details', 'color_list')[object['label'] % color_num], thickness=3)
 
             cv2.putText(image_canvas, class_name,
                         (int(object['bbox'][0]) + 5, int(object['bbox'][3]) - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5,
-                        color=self.configer.get('details', 'color_list')[object['label']], thickness=2)
+                        color=self.configer.get('details', 'color_list')[object['label'] % color_num], thickness=2)
 
         return image_canvas
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--hypes_file', default=None, type=str,
+    parser.add_argument('--hypes_file', default='../../hypes/det/coco/ssd_coco_det.json', type=str,
                         dest='hypes_file', help='The file of the hyper parameters.')
     parser.add_argument('--image_file', default=None, type=str,
                         dest='image_file', help='The image file of Det Parser.')
@@ -100,9 +101,9 @@ if __name__ == "__main__":
                         dest='json_file', help='The json file of Det Parser.')
     parser.add_argument('--mask_file', default=None, type=str,
                         dest='mask_file', help='The mask file of Det Parser.')
-    parser.add_argument('--image_dir', default=None, type=str,
+    parser.add_argument('--image_dir', default='/home/donny/DataSet/COCO_DET/train/image', type=str,
                         dest='image_dir', help='The image directory of Det Parser.')
-    parser.add_argument('--json_dir', default=None, type=str,
+    parser.add_argument('--json_dir', default='/home/donny/DataSet/COCO_DET/train/json', type=str,
                         dest='json_dir', help='The json directory of Det Parser.')
     parser.add_argument('--mask_dir', default=None, type=str,
                         dest='mask_dir', help='The mask directory of Det Parser.')

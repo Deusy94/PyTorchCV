@@ -49,6 +49,7 @@ class CocoDetGenerator(object):
 
         self.coco = COCO(self.args.anno_file)
         self.cat_ids = self.coco.getCatIds(catNms=CAT_DICT.keys())
+        print(len(self.cat_ids))
         self.img_ids = list(self.coco.imgs.keys())
 
     def generate_label(self):
@@ -58,7 +59,7 @@ class CocoDetGenerator(object):
             json_dict['width'] = self.coco.imgs[img_id]['width']
             json_dict['height'] = self.coco.imgs[img_id]['height']
 
-            ann_ids = self.coco.getAnnIds(imgIds=img_id, catIds=self.cat_ids)
+            ann_ids = self.coco.getAnnIds(imgIds=img_id, catIds=self.cat_ids, iscrowd=False)
             annos = self.coco.loadAnns(ann_ids)
             object_list = list()
             for anno in annos:
@@ -77,6 +78,8 @@ class CocoDetGenerator(object):
             shutil.copy(os.path.join(self.args.ori_img_dir, file_name),
                         os.path.join(self.image_dir, file_name))
 
+            if i % 1000 == 0:
+                print("Processed {} of {}".format(i, len(self.img_ids)))
 
 
 if __name__ == "__main__":
