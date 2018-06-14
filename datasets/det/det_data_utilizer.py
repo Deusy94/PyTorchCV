@@ -71,6 +71,12 @@ class DetDataUtilizer(object):
           classes(tensor): class labels, sized [8732,]
 
         """
+        if bboxes is None or len(bboxes) == 0:
+            loc = torch.zeros_like(self.default_boxes.size)
+            conf = torch.zeros((self.default_boxes.size(0), )).long()
+
+            return loc, conf
+
         iou = self._iou(bboxes, torch.cat([self.default_boxes[:, :2] - self.default_boxes[:, 2:]/2,
                                            self.default_boxes[:, :2] + self.default_boxes[:, 2:]/2], 1))  # [#obj,8732]
 

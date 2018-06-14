@@ -13,6 +13,7 @@ from torch.utils import data
 import datasets.tools.aug_transforms as aug_trans
 import datasets.tools.transforms as trans
 from datasets.det.ssd_data_loader import SSDDataLoader
+from datasets.det.fr_data_loader import FRDataLoader
 from utils.tools.logger import Logger as Log
 
 
@@ -42,17 +43,39 @@ class DetDataLoader(object):
 
             return trainloader
 
+        elif self.configer.get('method') == 'faster_rcnn':
+            trainloader = data.DataLoader(
+                FRDataLoader(root_dir=os.path.join(self.configer.get('data', 'data_dir'), 'train'),
+                             aug_transform=self.aug_train_transform,
+                             img_transform=self.img_transform,
+                             configer=self.configer),
+                batch_size=self.configer.get('data', 'train_batch_size'), shuffle=True,
+                num_workers=self.configer.get('data', 'workers'), pin_memory=True)
+
+            return trainloader
+
         else:
             Log.error('Method: {} loader is invalid.'.format(self.configer.get('method')))
             return None
 
-    def get_valloader(self, Loader=None):
+    def get_valloader(self):
         if self.configer.get('method') == 'single_shot_detector':
             valloader = data.DataLoader(
                 SSDDataLoader(root_dir=os.path.join(self.configer.get('data', 'data_dir'), 'val'),
                               aug_transform=self.aug_val_transform,
                               img_transform=self.img_transform,
                               configer=self.configer),
+                batch_size=self.configer.get('data', 'val_batch_size'), shuffle=False,
+                num_workers=self.configer.get('data', 'workers'), pin_memory=True)
+
+            return valloader
+
+        elif self.configer.get('method') == 'faster_rcnn':
+            valloader = data.DataLoader(
+                FRDataLoader(root_dir=os.path.join(self.configer.get('data', 'data_dir'), 'val'),
+                             aug_transform=self.aug_val_transform,
+                             img_transform=self.img_transform,
+                             configer=self.configer),
                 batch_size=self.configer.get('data', 'val_batch_size'), shuffle=False,
                 num_workers=self.configer.get('data', 'workers'), pin_memory=True)
 

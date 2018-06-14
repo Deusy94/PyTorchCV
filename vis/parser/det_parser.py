@@ -68,10 +68,13 @@ class DetParser(object):
             cv2.imshow('main', image_canvas)
             cv2.waitKey()
 
-    def draw_bboxes(self, image_canvas, info_tree):
+    def draw_bboxes(self, image_canvas, info_tree, conf_threshold=None):
         for object in info_tree['objects']:
             class_name = self.configer.get('details', 'name_seq')[object['label']]
             if 'score' in object:
+                if conf_threshold is not None and object['score'] < conf_threshold:
+                    continue
+
                 class_name = '{}_{}'.format(class_name, object['score'])
 
             cv2.rectangle(image_canvas,

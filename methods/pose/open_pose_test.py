@@ -25,6 +25,7 @@ from methods.tools.module_utilizer import ModuleUtilizer
 from models.pose_model_manager import PoseModelManager
 from utils.helpers.image_helper import ImageHelper
 from utils.helpers.file_helper import FileHelper
+from utils.helpers.json_helper import JsonHelper
 from utils.tools.logger import Logger as Log
 from vis.parser.pose_parser import PoseParser
 from vis.visualizer.pose_visualizer import PoseVisualizer
@@ -50,23 +51,12 @@ class OpenPoseTest(object):
     def __test_img(self, image_path, json_path, raw_path, vis_path):
         Log.info('Image Path: {}'.format(image_path))
         ori_img_rgb = ImageHelper.img2np(ImageHelper.pil_open_rgb(image_path))
-        cur_img_rgb = ImageHelper.resize(ori_img_rgb,
-                                         self.configer.get('data', 'input_size'),
-                                         interpolation=Image.CUBIC)
-
         ori_img_bgr = ImageHelper.bgr2rgb(ori_img_rgb)
-        paf_avg, heatmap_avg = self.__get_paf_and_heatmap(cur_img_rgb)
+        paf_avg, heatmap_avg = self.__get_paf_and_heatmap(ori_img_rgb)
         all_peaks = self.__extract_heatmap_info(heatmap_avg)
-        special_k, connection_all = self.__extract_paf_info(cur_img_rgb, paf_avg, all_peaks)
+        special_k, connection_all = self.__extract_paf_info(ori_img_rgb, paf_avg, all_peaks)
         subset, candidate = self.__get_subsets(connection_all, special_k, all_peaks)
-        json_dict = self.__get_info_tree(cur_img_rgb, subset, candidate)
-        for i in range(len(json_dict['objects'])):
-            for index in range(len(json_dict['objects'][i]['keypoints'])):
-                if json_dict['objects'][i]['keypoints'][index][2] == -1:
-                    continue
-
-                json_dict['objects'][i]['keypoints'][index][0] *= (ori_img_rgb.shape[1] / cur_img_rgb.shape[1])
-                json_dict['objects'][i]['keypoints'][index][1] *= (ori_img_rgb.shape[0] / cur_img_rgb.shape[0])
+        json_dict = self.__get_info_tree(ori_img_rgb, subset, candidate)
 
         image_canvas = self.pose_parser.draw_points(ori_img_bgr.copy(), json_dict)
         image_canvas = self.pose_parser.link_points(image_canvas, json_dict)
@@ -74,8 +64,7 @@ class OpenPoseTest(object):
         cv2.imwrite(vis_path, image_canvas)
         cv2.imwrite(raw_path, ori_img_bgr)
         Log.info('Json Save Path: {}'.format(json_path))
-        with open(json_path, 'w') as save_stream:
-            save_stream.write(json.dumps(json_dict))
+        JsonHelper.save_file(json_dict, json_path)
 
     def __get_info_tree(self, image_raw, subset, candidate):
         json_dict = dict()
