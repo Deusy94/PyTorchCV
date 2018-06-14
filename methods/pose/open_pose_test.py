@@ -24,6 +24,8 @@ from datasets.tools.transforms import Normalize, ToTensor, DeNormalize
 from methods.tools.module_utilizer import ModuleUtilizer
 from models.pose_model_manager import PoseModelManager
 from utils.helpers.image_helper import ImageHelper
+from utils.helpers.file_helper import FileHelper
+from utils.helpers.json_helper import JsonHelper
 from utils.tools.logger import Logger as Log
 from vis.parser.pose_parser import PoseParser
 from vis.visualizer.pose_visualizer import PoseVisualizer
@@ -49,23 +51,12 @@ class OpenPoseTest(object):
     def __test_img(self, image_path, json_path, raw_path, vis_path):
         Log.info('Image Path: {}'.format(image_path))
         ori_img_rgb = ImageHelper.img2np(ImageHelper.pil_open_rgb(image_path))
-        cur_img_rgb = ImageHelper.resize(ori_img_rgb,
-                                         self.configer.get('data', 'input_size'),
-                                         interpolation=Image.CUBIC)
-
         ori_img_bgr = ImageHelper.bgr2rgb(ori_img_rgb)
-        paf_avg, heatmap_avg = self.__get_paf_and_heatmap(cur_img_rgb)
+        paf_avg, heatmap_avg = self.__get_paf_and_heatmap(ori_img_rgb)
         all_peaks = self.__extract_heatmap_info(heatmap_avg)
-        special_k, connection_all = self.__extract_paf_info(cur_img_rgb, paf_avg, all_peaks)
+        special_k, connection_all = self.__extract_paf_info(ori_img_rgb, paf_avg, all_peaks)
         subset, candidate = self.__get_subsets(connection_all, special_k, all_peaks)
-        json_dict = self.__get_info_tree(cur_img_rgb, subset, candidate)
-        for i in range(len(json_dict['objects'])):
-            for index in range(len(json_dict['objects'][i]['keypoints'])):
-                if json_dict['objects'][i]['keypoints'][index][2] == -1:
-                    continue
-
-                json_dict['objects'][i]['keypoints'][index][0] *= (ori_img_rgb.shape[1] / cur_img_rgb.shape[1])
-                json_dict['objects'][i]['keypoints'][index][1] *= (ori_img_rgb.shape[0] / cur_img_rgb.shape[0])
+        json_dict = self.__get_info_tree(ori_img_rgb, subset, candidate)
 
         image_canvas = self.pose_parser.draw_points(ori_img_bgr.copy(), json_dict)
         image_canvas = self.pose_parser.link_points(image_canvas, json_dict)
@@ -73,8 +64,7 @@ class OpenPoseTest(object):
         cv2.imwrite(vis_path, image_canvas)
         cv2.imwrite(raw_path, ori_img_bgr)
         Log.info('Json Save Path: {}'.format(json_path))
-        with open(json_path, 'w') as save_stream:
-            save_stream.write(json.dumps(json_dict))
+        JsonHelper.save_file(json_dict, json_path)
 
     def __get_info_tree(self, image_raw, subset, candidate):
         json_dict = dict()
@@ -321,7 +311,7 @@ class OpenPoseTest(object):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
 
-            for filename in self.__list_dir(test_dir):
+            for filename in FileHelper.list_dir(test_dir):
                 image_path = os.path.join(test_dir, filename)
                 json_path = os.path.join(base_dir, 'json', '{}.json'.format('.'.join(filename.split('.')[:-1])))
                 raw_path = os.path.join(base_dir, 'raw', filename)
@@ -358,13 +348,18 @@ class OpenPoseTest(object):
                                       std=self.configer.get('trans_params', 'std'))(inputs[j])
                 ori_img = ori_img.numpy().transpose(1, 2, 0).astype(np.uint8)
                 image_bgr = cv2.cvtColor(ori_img, cv2.COLOR_RGB2BGR)
+                mask_canvas = maskmap[j].repeat(3, 1, 1).numpy().transpose(1, 2, 0)
+                mask_canvas = (mask_canvas * 255).astype(np.uint8)
+                mask_canvas = cv2.resize(mask_canvas, (0, 0), fx=self.configer.get('network', 'stride'),
+                                         fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
+
+                image_bgr = cv2.addWeighted(image_bgr, 0.6, mask_canvas, 0.4, 0)
                 heatmap_avg = heatmap[j].numpy().transpose(1, 2, 0)
                 heatmap_avg = cv2.resize(heatmap_avg, (0, 0), fx=self.configer.get('network', 'stride'),
                                      fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
                 paf_avg = vecmap[j].numpy().transpose(1, 2, 0)
                 paf_avg = cv2.resize(paf_avg, (0, 0), fx=self.configer.get('network', 'stride'),
                                      fy=self.configer.get('network', 'stride'), interpolation=cv2.INTER_CUBIC)
-                # self.pose_visualizer.vis_paf(paf_avg, image_rgb.astype(np.uint8),  name='314{}_{}'.format(i,j))
                 self.pose_visualizer.vis_peaks(heatmap_avg, image_bgr)
                 self.pose_visualizer.vis_paf(paf_avg, image_bgr)
                 all_peaks = self.__extract_heatmap_info(heatmap_avg)
@@ -377,14 +372,3 @@ class OpenPoseTest(object):
                 cv2.imshow('main', image_canvas)
                 cv2.waitKey()
 
-    def __list_dir(self, dir_name):
-        filename_list = list()
-        for item in os.listdir(dir_name):
-            if os.path.isdir(os.path.join(dir_name, item)):
-                for filename in os.listdir(os.path.join(dir_name, item)):
-                    filename_list.append('{}/{}'.format(item, filename))
-
-            else:
-                filename_list.append(item)
-
-        return filename_list

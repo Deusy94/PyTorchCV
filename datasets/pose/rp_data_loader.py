@@ -48,7 +48,7 @@ class RPDataLoader(data.Dataset):
 
         width, height = maskmap.size
         maskmap = ImageHelper.resize(maskmap, (width // self.configer.get('network', 'stride'),
-                                               height // self.configer.get('network', 'stride')), Image.NEAREST)
+                                               height // self.configer.get('network', 'stride')), Image.CUBIC)
 
         labelmap = ImageHelper.resize(labelmap, (width // self.configer.get('network', 'stride'),
                                                  height // self.configer.get('network', 'stride')), Image.NEAREST)

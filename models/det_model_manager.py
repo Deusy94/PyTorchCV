@@ -10,14 +10,12 @@ from __future__ import print_function
 
 from models.det.dense_aspp import DenseASPP
 from models.det.ssd import SSD
-from models.det.dense_aspp_lane import DenseASPPLane
 from utils.tools.logger import Logger as Log
 
 
 DET_MODEL_DICT = {
     'dense_aspp': DenseASPP,
     'ssd': SSD,
-    'dense_aspp_lane': DenseASPPLane,
 }
 
 

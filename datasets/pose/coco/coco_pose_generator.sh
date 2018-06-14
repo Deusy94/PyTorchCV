@@ -4,7 +4,7 @@
 # Generate train & val data.
 
 
-export PYTHONPATH='/home/deepmotion/PycharmProjects/PoseEstimation'
+export PYTHONPATH='/home/donny/Projects/PytorchCV'
 
 INPUT_SIZE=368
 

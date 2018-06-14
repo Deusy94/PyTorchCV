@@ -8,6 +8,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
 import json
 import os
 import argparse
@@ -48,6 +49,12 @@ class Configer(object):
                 elif value is not None:
                     self.update_value(key.split(':'), value)
 
+    def _get_caller(self):
+        filename = os.path.basename(sys._getframe().f_back.f_back.f_code.co_filename)
+        lineno = sys._getframe().f_back.f_back.f_lineno
+        prefix = '{}, {}'.format(filename, lineno)
+        return prefix
+
     def get(self, *key):
         if len(key) == 0:
             return self.params_root
@@ -56,18 +63,18 @@ class Configer(object):
             if key[0] in self.params_root:
                 return self.params_root[key[0]]
             else:
-                Log.error('KeyError: {}.'.format(key))
+                Log.error('{} KeyError: {}.'.format(self._get_caller(), key))
                 exit(1)
 
         elif len(key) == 2:
             if key[0] in self.params_root and key[1] in self.params_root[key[0]]:
                 return self.params_root[key[0]][key[1]]
             else:
-                Log.error('KeyError: {}.'.format(key))
+                Log.error('{} KeyError: {}.'.format(self._get_caller(), key))
                 exit(1)
 
         else:
-            Log.error('KeyError: {}.'.format(key))
+            Log.error('{} KeyError: {}.'.format(self._get_caller(), key))
             exit(1)
 
     def is_empty(self, *key):
@@ -95,50 +102,50 @@ class Configer(object):
                 self.params_root[key_tuple[0]][key_tuple[1]] = value
 
             else:
-                Log.error('Key: {} existed!!!'.format(key_tuple))
+                Log.error('{} Key: {} existed!!!'.format(self._get_caller(), key_tuple))
                 exit(1)
         else:
-            Log.error('KeyError: {}!!!'.format(key_tuple))
+            Log.error('{} KeyError: {}.'.format(self._get_caller(), key_tuple))
             exit(1)
 
     def update_value(self, key_tuple, value):
         if len(key_tuple) == 1:
             if key_tuple[0] not in self.params_root:
-                Log.error('Key: {} not existed!!!'.format(key_tuple))
+                Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key_tuple))
                 exit(1)
 
             self.params_root[key_tuple[0]] = value
 
         elif len(key_tuple) == 2:
             if key_tuple[0] not in self.params_root or key_tuple[1] not in self.params_root[key_tuple[0]]:
-                Log.error('Key: {} not existed!!!'.format(key_tuple))
+                Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key_tuple))
                 exit(1)
 
             else:
                 self.params_root[key_tuple[0]][key_tuple[1]] = value
 
         else:
-            Log.error('Key: {} not existed!!!'.format(key_tuple))
+            Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key_tuple))
             exit(1)
 
     def plus_one(self, *key):
         if len(key) == 1:
             if key[0] not in self.params_root:
-                Log.error('Key: {} not existed!!!'.format(key))
+                Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key))
                 exit(1)
 
             self.params_root[key[0]] += 1
 
         elif len(key) == 2:
             if key[0] not in self.params_root or key[1] not in self.params_root[key[0]]:
-                Log.error('Key: {} not existed!!!'.format(key))
+                Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key))
                 exit(1)
 
             else:
                 self.params_root[key[0]][key[1]] += 1
 
         else:
-            Log.error('Key: {} not existed!!!'.format(key))
+            Log.error('{} Key: {} not existed!!!'.format(self._get_caller(), key))
             exit(1)
 
     def to_dict(self):
