@@ -262,7 +262,7 @@ class SingleShotDetectorTest(object):
 
                 ori_img_rgb = DeNormalize(mean=self.configer.get('trans_params', 'mean'),
                                           std=self.configer.get('trans_params', 'std'))(inputs[j])
-                ori_img_rgb = ori_img_rgb.numpy().transpose(1, 2, 0)
+                ori_img_rgb = ori_img_rgb.numpy().transpose(1, 2, 0).astype(np.uint8)
                 ori_img_bgr = cv2.cvtColor(ori_img_rgb, cv2.COLOR_RGB2BGR)
                 eye_matrix = torch.eye(self.configer.get('data', 'num_classes'))
                 labels_target = eye_matrix[labels.view(-1)].view(inputs.size(0), -1,
