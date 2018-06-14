@@ -93,7 +93,7 @@ class DetParser(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--hypes_file', default='../../hypes/det/coco/ssd_coco_det.json', type=str,
+    parser.add_argument('--hypes_file', default=None, type=str,
                         dest='hypes_file', help='The file of the hyper parameters.')
     parser.add_argument('--image_file', default=None, type=str,
                         dest='image_file', help='The image file of Det Parser.')
@@ -101,9 +101,9 @@ if __name__ == "__main__":
                         dest='json_file', help='The json file of Det Parser.')
     parser.add_argument('--mask_file', default=None, type=str,
                         dest='mask_file', help='The mask file of Det Parser.')
-    parser.add_argument('--image_dir', default='/home/donny/DataSet/COCO_DET/train/image', type=str,
+    parser.add_argument('--image_dir', default=None, type=str,
                         dest='image_dir', help='The image directory of Det Parser.')
-    parser.add_argument('--json_dir', default='/home/donny/DataSet/COCO_DET/train/json', type=str,
+    parser.add_argument('--json_dir', default=None, type=str,
                         dest='json_dir', help='The json directory of Det Parser.')
     parser.add_argument('--mask_dir', default=None, type=str,
                         dest='mask_dir', help='The mask directory of Det Parser.')
