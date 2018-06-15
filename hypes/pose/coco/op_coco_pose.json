@@ -98,7 +98,7 @@
     },
 
     "network":{
-      "backbone": "resnet101_dilated8",
+      "backbone": "vgg19_dilated8",
       "model_name": "open_pose",
       "init": "kaiming_normal",
       "stride": 8,
@@ -148,10 +148,11 @@
       "routing_iter": 3
     },
     "vis": {
+      "num_threshold": 6,
       "stick_width": 4,
       "circle_radius": 4,
-      "part_threshold": 0.03,
-      "limb_threshold": 0.01,
+      "part_threshold": 0.05,
+      "limb_threshold": 0.2,
       "mid_point_num": 10,
       "limb_pos_ratio": 0.8
     }

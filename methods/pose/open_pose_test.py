@@ -73,7 +73,7 @@ class OpenPoseTest(object):
         json_dict['image_width'] = width
         object_list = list()
         for n in range(len(subset)):
-            if subset[n][-1] <= 1:
+            if subset[n][-1] <= self.configer.get('vis', 'num_threshold'):
                 continue
 
             object_dict = dict()
