@@ -13,11 +13,11 @@ This repository provides source code for some deep learning based cv problems. W
 
 <div align="center">
 
-<img src="val/examples/pose/coco/000000319721_vis.png" width="700px"/>
+<img src="val/examples/pose/coco/000000319721_vis.png" width="500px"/>
 
 <p> Example output of <b>VGG19-OpenPose</b></p>
 
-<img src="val/examples/pose/coco/000000475191_vis.png" width="700px"/>
+<img src="val/examples/pose/coco/000000475191_vis.png" width="500px"/>
 
 <p> Example output of <b>VGG19-OpenPose</b></p>
 
