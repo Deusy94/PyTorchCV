@@ -9,6 +9,20 @@
 
 This repository provides source code for some deep learning based cv problems. We'll do our best to keep this repository up to date.  If you do find a problem about this repository, please raise it as an issue. We will fix it immediately.
 
+#### Examples (trained with PyTorchCV)
+
+<div align="center">
+
+<img src="val/examples/pose/coco/000000319721_vis.png" width="500px"/>
+
+<p> Example output of <b>VGG19-OpenPose</b></p>
+
+<img src="val/examples/pose/coco/000000475191_vis.png" width="500px"/>
+
+<p> Example output of <b>VGG19-OpenPose</b></p>
+
+</div>
+
 
 #### Details:
 
@@ -58,10 +72,5 @@ python main.py  --hypes hypes/pose/coco/op_coco_pose.json \
                 --test_dir val/samples \
                 --gpu 0
 ```
-
-- The weights are trained with PyTorchCV
-
-![example1](val/examples/pose/coco/000000319721_vis.png)
-![example2](val/examples/pose/coco/000000475191_vis.png)
 
 - Attention: Other command line parameters are showed in main file. You can refer & use them.
