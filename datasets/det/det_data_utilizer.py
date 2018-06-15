@@ -102,8 +102,7 @@ class DetDataUtilizer(object):
 
         # According to IOU, it give every prior box a class label.
         # Then if the IOU is lower than the threshold, the class label is 0(background).
-        class_iou, prior_box_idx = iou.max(1)
-        prior_box_idx.squeeze_(0)
+        class_iou, prior_box_idx = iou.max(1, keepdim=False)
         conf_class_idx = prior_box_idx.cpu().numpy()
         conf[conf_class_idx] = labels + 1
 
