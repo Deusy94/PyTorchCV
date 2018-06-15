@@ -63,7 +63,7 @@ class DenseASPP(nn.Module):
 
         self.features = BackboneSelector(configer).get_backbone()
 
-        num_features = self.features.get_out_channels()
+        num_features = self.features.get_num_features()
 
         self.ASPP_3 = nn.Sequential(nn.ReLU(inplace=True),
                                     nn.Conv2d(in_channels=num_features, out_channels=256, kernel_size=1),
@@ -119,7 +119,7 @@ class DenseASPP(nn.Module):
         self.multibox_layer = ShareMultiBoxLayer(configer)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                init.kaiming_uniform(m.weight.data)
+                init.kaiming_uniform_(m.weight.data)
                 if m.bias is not None:
                     m.bias.data.zero_()
             elif isinstance(m, nn.BatchNorm2d):

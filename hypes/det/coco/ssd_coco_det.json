@@ -1,13 +1,13 @@
 {
-    "dataset": "kitti",
+    "dataset": "coco",
     "task": "det",
     "method": "single_shot_detector",
     "data": {
       "train_batch_size": 6,
       "val_batch_size": 6,
-      "input_size": [768, 256],
-      "num_classes": 2,
-      "data_dir": "/data/DataSet/KITTI",
+      "input_size": [300, 300],
+      "num_classes": 81,
+      "data_dir": "/home/donny/DataSet/COCO_DET",
       "workers": 8
     },
     "train_trans": {
@@ -15,7 +15,7 @@
       "brightness_ratio": 0.0,
       "blur_ratio": 0.0,
       "hsv_ratio": 0.0,
-      "flip_ratio": 0.5,
+      "flip_ratio": 0.0,
       "resize_ratio": 0.0,
       "rotate_ratio": 0.0,
       "crop_ratio": 0.0,
@@ -28,7 +28,7 @@
       "brightness_ratio": 0.0,
       "blur_ratio": 0.0,
       "hsv_ratio": 0.0,
-      "flip_ratio": 0.5,
+      "flip_ratio": 0.0,
       "resize_ratio": 0.0,
       "rotate_ratio": 0.0,
       "crop_ratio": 0.0,
@@ -107,13 +107,13 @@
                    "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"]
     },
     "checkpoints": {
-      "checkpoints_name": "ssd_kitti_det",
-      "checkpoints_dir": "checkpoints/det/kitti",
+      "checkpoints_name": "ssd_coco_det",
+      "checkpoints_dir": "checkpoints/det/coco",
       "save_iters": 10000
     },
 
     "network":{
-      "backbone": "dilated_mobilenetv2",
+      "backbone": "resnet50_dilated8",
       "width_mult": 1.0,
       "model_name": "dense_aspp",
       "init": "kaiming_normal"
@@ -121,7 +121,7 @@
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
-      "log_file": "./log/det/ssd_kitti_det.log",
+      "log_file": "./log/det/ssd_coco_det.log",
       "log_format": "%(asctime)s %(levelname)-7s %(message)s",
       "rewrite": true
     },

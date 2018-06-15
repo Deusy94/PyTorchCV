@@ -67,7 +67,7 @@ class SSD(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_uniform(m.weight.data)
+                nn.init.kaiming_uniform_(m.weight.data)
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
@@ -97,9 +97,9 @@ class SSD(nn.Module):
             nn.ReLU(),
             nn.Conv2d(512, 512, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.Conv2d(512, self.num_features[1], kernel_size=3, padding=6, dilation=6),
+            nn.Conv2d(512, self.num_features[0], kernel_size=3, padding=6, dilation=6),
             nn.ReLU(),
-            nn.Conv2d(self.num_features[1], self.num_features[1], kernel_size=1),
+            nn.Conv2d(self.num_features[0], self.num_features[1], kernel_size=1),
             nn.ReLU(),
         )
 
@@ -109,20 +109,20 @@ class SSD(nn.Module):
         # 'num_padding': [1, 1, 0, 0],
         self.feature2 = self.__extra_layer(num_in=self.num_features[1], num_out=self.num_features[2],
                                            num_c=self.num_centrals[0], stride=self.num_strides[0],
-                                           pad=self.num_padding[0])
+                                           pad=self.num_paddings[0])
         self.feature3 = self.__extra_layer(num_in=self.num_features[2], num_out=self.num_features[3],
                                            num_c=self.num_centrals[1], stride=self.num_strides[1],
-                                           pad=self.num_padding[1])
+                                           pad=self.num_paddings[1])
         self.feature4 = self.__extra_layer(num_in=self.num_features[3], num_out=self.num_features[4],
                                            num_c=self.num_centrals[2], stride=self.num_strides[2],
-                                           pad=self.num_padding[2])
+                                           pad=self.num_paddings[2])
         self.feature5 = self.__extra_layer(num_in=self.num_features[4], num_out=self.num_features[5],
                                            num_c=self.num_centrals[3], stride=self.num_strides[3],
-                                           pad=self.num_padding[3])
+                                           pad=self.num_paddings[3])
         if mode == 'large':
             self.feature6 = self.__extra_layer(num_in=self.num_features[5], num_out=self.num_features[6],
                                                num_c=self.num_centrals[4], stride=self.num_strides[4],
-                                               pad=self.num_padding[4])
+                                               pad=self.num_paddings[4])
 
         elif mode == 'huge':
             self.feature6 = self.__extra_layer(num_in=self.num_features[5], num_out=self.num_features[6],
@@ -210,25 +210,6 @@ class L2Norm2d(nn.Module):
         out = self.scale * x * _sum.unsqueeze(1).expand_as(x)
         return out
 
-
-def load_pretrained_weight(_model, pth):
-    vgg16_bn = models.vgg16_bn()
-    vgg16_bn.load_state_dict(torch.load(pth))
-    _model.load_pretrained_weight(vgg16_bn)
-    return _model
-
-
-def load_pretrained_model(model, pth, is_local=True):
-    if is_local:
-        model.load_state_dict(torch.load(pth))
-    else:
-        weight = torch.load(pth)
-        new_state_dict = OrderedDict()
-        for k, v in weight.items():
-            name = k[7:]  # remove 'module' producing by training on multi gpus
-            new_state_dict[name] = v
-        model.load_state_dict(new_state_dict)
-    return model
 
 if __name__ == "__main__":
     pass

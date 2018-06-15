@@ -49,7 +49,7 @@ class SingleShotDetectorTest(object):
     def __test_img(self, image_path, json_path, raw_path, vis_path):
         Log.info('Image Path: {}'.format(image_path))
         ori_img_rgb = ImageHelper.img2np(ImageHelper.pil_open_rgb(image_path))
-        ori_img_bgr = ImageHelper.bgr2rgb(ori_img_rgb)
+        ori_img_bgr = ImageHelper.rgb2bgr(ori_img_rgb)
         inputs = ImageHelper.resize(ori_img_rgb, tuple(self.configer.get('data', 'input_size')), Image.CUBIC)
         inputs = ToTensor()(inputs)
         inputs = Normalize(mean=self.configer.get('trans_params', 'mean'),
@@ -164,7 +164,7 @@ class SingleShotDetectorTest(object):
             return pred_bboxes, pred_labels, pred_confs
 
         else:
-            print('None object detected!')
+            Log.info('None object detected!')
             pred_bboxes = list()
             pred_labels = list()
             pred_confs = list()
@@ -183,7 +183,7 @@ class SingleShotDetectorTest(object):
             xmax = bbox[2] * width
             ymin = bbox[1] * height
             ymax = bbox[3] * height
-            object_dict['bbox'] = [xmin, xmax, ymin, ymax]
+            object_dict['bbox'] = [xmin, ymin, xmax, ymax]
             object_dict['label'] = label - 1
             object_dict['score'] = cf
 
