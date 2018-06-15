@@ -61,7 +61,7 @@ python main.py  --hypes hypes/pose/coco/op_coco_pose.json \
 
 - The weights are trained with PyTorchCV
 
-![example1](val/examples/pose/coco/000000319721_vis.jpg)
-![example2](val/examples/pose/coco/000000475191_vis.jpg)
+![example1](val/examples/pose/coco/000000319721_vis.png)
+![example2](val/examples/pose/coco/000000475191_vis.png)
 
 - Attention: Other command line parameters are showed in main file. You can refer & use them.
